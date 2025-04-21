@@ -6,6 +6,12 @@ DOCKER_TAG = "v.${BUILD_ID}.0"
 }
 agent any // Jenkins will be able to select all available agents
 stages {
+
+        stage("Datascientest Env Variables") {
+            steps {
+                echo "The build id is ${env.BUILD_ID} or $BUILD_ID or ${BUILD_ID} "
+            }
+
         stage(' Docker Build'){ // docker build image stage
             steps {
                 script {
