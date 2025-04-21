@@ -1,7 +1,8 @@
 pipeline {
     environment {  
         DOCKER_ID = "cmoisby"  
-        DOCKER_IMAGE = "Jenkins_devops_exams"
+        DOCKER_IMAGE_CAST = "cast"
+        DOCKER_IMAGE_MOVIE = "movie"
         DOCKER_TAG = "v.${BUILD_ID}.0"  
     }
     agent any  // Jenkins will be able to select all available agents
@@ -17,11 +18,12 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker rm -f cast-service
-                        docker rm -f movie-service
-                        echo "${DOCKER_ID}/${DOCKER_IMAGE}"
-                        docker build -t ${DOCKER_ID}/${DOCKER_IMAGE}:${DOCKER_TAG} ./cast
-                        docker build -t ${DOCKER_ID}/${DOCKER_IMAGE}:${DOCKER_TAG} ./movie
+                        docker rm -f cast
+                        docker rm -f movie
+                        echo "${DOCKER_ID}/${DOCKER_IMAGE_CAST}"
+                        docker build -t ${DOCKER_ID}/${DOCKER_IMAGE_CAST}:${DOCKER_TAG} ./cast
+                        echo "${DOCKER_ID}/${DOCKER_IMAGE_MOVIE}"
+                        docker build -t ${DOCKER_ID}/${DOCKER_IMAGE_MOVIE}:${DOCKER_TAG} ./movie
                         sleep 6
                     '''
                 }
@@ -32,8 +34,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 80:80 --name cast ${DOCKER_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker run -d -p 80:81 --name movie ${DOCKER_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker run -d -p 80:80 --name cast ${DOCKER_ID}/${DOCKER_IMAGE_MOVIE}:${DOCKER_TAG}
+                        docker run -d -p 80:81 --name movie ${DOCKER_ID}/${DOCKER_IMAGE_CAST}:${DOCKER_TAG}
                         sleep 10
                     '''
                 }
