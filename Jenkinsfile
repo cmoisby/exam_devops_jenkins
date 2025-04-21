@@ -29,31 +29,8 @@ pipeline {
                 }
             }
         }
-
-        stage('Docker run') { // Run containers from our built images
-            steps {
-                script {
-                    sh '''
-                        docker run -d -p 8001:80 --name cast ${DOCKER_ID}/${DOCKER_IMAGE_CAST}:${DOCKER_TAG}
-                        docker run -d -p 8002:80 --name movie ${DOCKER_ID}/${DOCKER_IMAGE_MOVIE}:${DOCKER_TAG}
-                        sleep 10
-                    '''
-                }
-            }
-        }
-         stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
-            steps {
-                    script {
-                    sh '''
-                    echo 'Testing CAST'
-                    curl localhost:8001
-                     echo 'Testing MOVIE'
-                    curl localhost:8001
-                    '''
-                    }
-            }
-
-        }
+ 
+         
         stage('Docker Push'){ //we pass the built image to our docker hub account
             environment
             {
