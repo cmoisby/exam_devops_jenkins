@@ -71,16 +71,21 @@ pipeline {
 
         }
 
-        stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
-            steps {
-                    script {
-                    sh '''
-                    curl localhost:30080/api/v1/movies/docs
-                    '''
+        stages {
+         stage('Test Acceptance') {
+         steps {
+             script {
+                 def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://<node_ip>:${PORT}/", returnStdout: true).trim()
+                 if (response != '200') {
+                   error "App non prête ! Code HTTP: ${response}"
+                   } else {
+                    echo "App OK sur le port ${PORT}"
+                     }
                     }
-            }
-
-        }
+              }
+             }
+         }
+ 
         stage('Deploiement en staging'){
         environment
         {
