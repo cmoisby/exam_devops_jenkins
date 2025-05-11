@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: movie-service
-          image: {{ .Values.movieService.image }}
+          image: {{ .Values.movieService.image }}:{{ .Values.movieService.tag }}
           command:
             - /bin/sh
             - -c

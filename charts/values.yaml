@@ -1,5 +1,6 @@
 movieService:
-  image: cmoisby/movie:v.9.0
+  image: cmoisby/movie
+  tag: v.9.0
   databaseUri: postgresql://movie_db_username:movie_db_password@movie-db/movie_db_dev
   movieServiceHostUrl: http://movie_service:8000/api/v1/casts/
 
@@ -10,7 +11,8 @@ postgresMovie:
   db: movie_db_dev
 
 castService:
-  image: cmoisby/cast:v.9.0
+  image: cmoisby/cast
+  tag: v.9.0
   databaseUri: postgresql://cast_db_username:cast_db_password@cast-db/cast_db_dev
   castServiceHostUrl: http://cast_service:8000/api/v1/casts/
 postgresCast:

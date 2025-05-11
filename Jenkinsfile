@@ -70,6 +70,83 @@ pipeline {
             }
 
         }
- 
+
+        stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
+            steps {
+                    script {
+                    sh '''
+                    curl localhost:30080/api/v1/movies/docs
+                    '''
+                    }
+            }
+
+        }
+        stage('Deploiement en staging'){
+        environment
+        {
+        KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+        }
+            steps {
+                script {
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                cp fastapi/values.yaml values.yml
+                cat values.yml
+                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                helm upgrade --install app ./charts --values=values.yml --namespace staging
+                '''
+                }
+            }
+
+        }
+  stage('Deploiement en prod'){
+        environment
+        {
+        KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+        }
+            steps {
+            // Create an Approval Button with a timeout of 15minutes.
+            // this require a manuel validation in order to deploy on production environment
+                    timeout(time: 15, unit: "MINUTES") {
+                        input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                    }
+
+                script {
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                cp fastapi/values.yaml values.yml
+                cat values.yml
+                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                helm upgrade --install app ./charts --values=values.yml --namespace prod
+                '''
+                }
+            }
+
+        }
     }
+
+    post {
+    success {
+        echo "This will run if the job succeeded"
+        mail to: "souheilby@gmail.com",
+            subject: "${env.JOB_NAME} - Build #${env.BUILD_ID} succeeded",
+            body: "Good news! The build for ${env.JOB_NAME} completed successfully. Check details at ${env.BUILD_URL}"
+        }
+    
+        failure {
+            echo "This will run if the job failed"
+            mail to: "souheilby@gmail.com",
+                subject: "${env.JOB_NAME} - Build # ${env.BUILD_ID} has failed",
+                body: "For more info on the pipeline failure, check out the console output at ${env.BUILD_URL}"
+        }
+    }
+
 }
+ 
+  

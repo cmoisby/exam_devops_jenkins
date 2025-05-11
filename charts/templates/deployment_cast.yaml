@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cast-service
-          image: {{ .Values.castService.image }}
+          image: {{ .Values.castService.image }}:{{ .Values.castService.tag }}
           command:
             - /bin/sh
             - -c
