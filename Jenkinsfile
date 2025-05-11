@@ -70,18 +70,28 @@ pipeline {
             }
 
         } 
-         stage('Test Acceptance') {
+        stage('Test Acceptance') {
          steps {
              script {
-                 def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://<node_ip>:${PORT}/", returnStdout: true).trim()
-                 if (response != '200') {
-                   error "App non prête ! Code HTTP: ${response}"
-                   } else {
-                    echo "App OK sur le port ${PORT}"
-                     }
+            // Récupérer dynamiquement le nodePort
+            def nodePort = sh(script: "kubectl get svc nginx -n ${params.NAMESPACE} -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
+
+            // Vérifier la réponse du service avec curl
+            def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://${params.NODE_IP}:${nodePort}/", returnStdout: true).trim()
+
+            if (response != '200') {
+                error "App non prête ! Code HTTP: ${response}"
+            } else {
+                echo "App OK l'application est disponible sur le port ${nodePort}"
+                script {
+                    sh '''
+                    curl localhost:${nodePort}/api/v1/movies/docs
+                    '''
                     }
+            }
               }
-        } 
+             }
+        }
         stage('Deploiement en staging'){
         environment
         {
