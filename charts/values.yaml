@@ -1,19 +1,28 @@
-# Default values for fastapiapp.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+movieService:
+  image: cmoisby/movie:v.9.0
+  databaseUri: postgresql://movie_db_username:movie_db_password@movie-db/movie_db_dev
+  movieServiceHostUrl: http://movie_service:8000/api/v1/casts/
 
-replicaCount: 3
+postgresMovie:
+  image: postgres:12.1-alpine
+  username: movie_db_username
+  password: movie_db_password
+  db: movie_db_dev
 
-image:
-  repository: sajjadhz/fastapiapp
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+castService:
+  image: cmoisby/cast:v.9.0
+  databaseUri: postgresql://cast_db_username:cast_db_password@cast-db/cast_db_dev
+  castServiceHostUrl: http://cast_service:8000/api/v1/casts/
+postgresCast:
+  image: postgres:12.1-alpine
+  username: cast_db_username
+  password: cast_db_password
+  db: cast_db_dev
 
-imagePullSecrets: 
-  - name: "regcred"
-nameOverride: ""
-fullnameOverride: ""
+nginx:
+  image: nginx:latest
+  port: 8060
+
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -36,13 +45,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-service:
-  type: NodePort
-  port: 80
-  nodePort: 30007  
-  targetPort: 8000
-
 ingress:
   enabled: false
   className: ""
