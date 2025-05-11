@@ -9,4 +9,4 @@ spec:
   ports:
     - port: 8060
       targetPort: 8060
-      nodePort: 30080  # Port accessible depuis l'extérieur
+       
