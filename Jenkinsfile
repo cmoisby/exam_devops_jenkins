@@ -64,7 +64,7 @@ pipeline {
                 cp charts/values.yaml values.yml
                 cat values.yml
                 sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                helm upgrade --install  exam --values=values.yml --namespace dev
+                helm upgrade --install  app  ./Charts --values=values.yml --namespace dev
                 '''
                 }
             }
