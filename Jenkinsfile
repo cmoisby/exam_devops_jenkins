@@ -70,11 +70,49 @@ pipeline {
             }
 
         } 
-        stage('Test de l''applciation DEV') {
+        stage('Test Acceptance DEV') {
          steps {
              script {
             // Récupérer dynamiquement le nodePort
             def nodePort = sh(script: "kubectl get svc nginx -n dev -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
+
+            // Vérifier la réponse du service avec curl 
+            def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:$nodePort/api/v1/movies/docs", returnStdout: true).trim()
+            if (response != '200') {
+                error "App non prête ! Code HTTP: ${response}"
+            } else {
+                echo "App OK l'application est disponible sur le port ${nodePort}"
+                 
+            }
+              }
+             }
+        }
+          stage('Deploiement en QA'){
+        environment
+        {
+        KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+        }
+            steps {
+                script {
+                sh '''
+                rm -Rf .kube
+                mkdir .kube
+                ls
+                cat $KUBECONFIG > .kube/config
+                cp charts/values.yaml values.yml
+                cat values.yml
+                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                helm upgrade --install  app  ./charts --values=values.yml --namespace qa
+                '''
+                }
+            }
+
+        } 
+        stage('Test Acceptance QA') {
+         steps {
+             script {
+            // Récupérer dynamiquement le nodePort
+            def nodePort = sh(script: "kubectl get svc nginx -n qa -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
 
             // Vérifier la réponse du service avec curl 
             def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:$nodePort/api/v1/movies/docs", returnStdout: true).trim()
@@ -108,7 +146,7 @@ pipeline {
             }
 
         }
-         stage('Test de l''applciation staging') {
+         stage('Test Acceptance staging') {
          steps {
              script {
             // Récupérer dynamiquement le nodePort
