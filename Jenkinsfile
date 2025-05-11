@@ -77,17 +77,13 @@ pipeline {
             def nodePort = sh(script: "kubectl get svc nginx -n dev -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
 
             // Vérifier la réponse du service avec curl
-            def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://${params.NODE_IP}:${nodePort}/", returnStdout: true).trim()
+            def response = sh(script: "curl localhost:${nodePort}/api/v1/movies/docs", returnStdout: true).trim()
 
             if (response != '200') {
                 error "App non prête ! Code HTTP: ${response}"
             } else {
                 echo "App OK l'application est disponible sur le port ${nodePort}"
-                script {
-                    sh '''
-                    curl localhost:${nodePort}/api/v1/movies/docs
-                    '''
-                    }
+                 
             }
               }
              }
