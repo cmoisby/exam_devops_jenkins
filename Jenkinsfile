@@ -69,9 +69,7 @@ pipeline {
                 }
             }
 
-        }
-
-        stages {
+        } 
          stage('Test Acceptance') {
          steps {
              script {
@@ -83,9 +81,7 @@ pipeline {
                      }
                     }
               }
-             }
-         }
- 
+        } 
         stage('Deploiement en staging'){
         environment
         {
