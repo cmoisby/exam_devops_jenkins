@@ -70,7 +70,7 @@ pipeline {
             }
 
         } 
-        stage('Test Acceptance') {
+        stage('Test de l''applciation DEV') {
          steps {
              script {
             // Récupérer dynamiquement le nodePort
@@ -107,6 +107,23 @@ pipeline {
                 }
             }
 
+        }
+         stage('Test de l''applciation staging') {
+         steps {
+             script {
+            // Récupérer dynamiquement le nodePort
+            def nodePort = sh(script: "kubectl get svc nginx -n staging -o jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
+
+            // Vérifier la réponse du service avec curl 
+            def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:$nodePort/api/v1/movies/docs", returnStdout: true).trim()
+            if (response != '200') {
+                error "App non prête ! Code HTTP: ${response}"
+            } else {
+                echo "App OK l'application est disponible sur le port ${nodePort}"
+                 
+            }
+              }
+             }
         }
   stage('Deploiement en prod'){
         environment
